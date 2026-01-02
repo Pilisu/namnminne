@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Namnminne</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007aff">
+
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system;
+  background: #f2f2f2;
+  text-align: center;
+}
+.container {
+  max-width: 420px;
+  margin: auto;
+  padding: 15px;
+}
+img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+input, button {
+  width: 100%;
+  font-size: 1.1em;
+  padding: 14px;
+  margin-top: 10px;
+  border-radius: 8px;
+}
+button {
+  border: none;
+  background: #007aff;
+  color: white;
+}
+.secondary {
+  background: #999;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h1>Vem är personen?</h1>
+<p id="category"></p>
+<img id="photo">
+<input id="answer" placeholder="För- och efternamn">
+<button onclick="checkAnswer()">Svara</button>
+<button class="secondary" onclick="showHint()">Visa ledtråd</button>
+<p id="hint"></p>
+<p id="feedback"></p>
+</div>
+
+<script>
+const people = [
+  {
+    name: "Zlatan Ibrahimović",
+    initials: "Z I",
+    image: "https://upload.wikimedia.org/wikipedia/commons/8/8c/Zlatan_Ibrahimovic_2018.jpg",
+    category: "Sport",
+    weight: 3
+  },
+  {
+    name: "Pernilla Wahlgren",
+    initials: "P W",
+    image: "https://upload.wikimedia.org/wikipedia/commons/3/34/Pernilla_Wahlgren_2019.jpg",
+    category: "TV",
+    weight: 2
+  }
+];
+
+let current;
+
+function pickPerson() {
+  let pool = [];
+  people.forEach(p => {
+    for (let i = 0; i < p.weight; i++) pool.push(p);
+  });
+  current = pool[Math.floor(Math.random() * pool.length)];
+  photo.src = current.image;
+  category.innerText = "Kategori: " + current.category;
+  hint.innerText = "";
+  feedback.innerText = "";
+  answer.value = "";
+}
+
+function showHint() {
+  hint.innerText = "Initialer: " + current.initials;
+}
+
+function normalize(t) {
+  return t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function checkAnswer() {
+  if (normalize(answer.value) === normalize(current.name)) {
+    feedback.innerText = "Rätt 🎉";
+    current.weight = Math.max(1, current.weight - 1);
+  } else {
+    feedback.innerText = "Fel ❌ Rätt svar: " + current.name;
+    current.weight++;
+  }
+  setTimeout(pickPerson, 2000);
+}
+
+pickPerson();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js');
+}
+</script>
+</body>
+</html>
